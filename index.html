@@ -1,0 +1,1690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Note Taker</title>
+  <!-- Google Font: Poppins -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+   
+   /* ===============================
+   Global Styles & CSS Variables
+   =============================== */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', sans-serif;
+  background-color: #121212;
+  color: #e0e0e0;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 20px;
+}
+
+/* Define CSS Variables for consistency */
+:root {
+  --primary-color: #2196F3;
+  --secondary-color: #21CBF3;
+  --accent-color: #1976D2;
+  --background-color: #1e1e1e;
+  --card-bg: rgba(255,255,255,0.05);
+  --text-color: #e0e0e0;
+}
+
+/* ===============================
+   Animations
+   =============================== */
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 1.5s ease forwards;
+}
+
+/* ===============================
+   Header & Note Type Buttons
+   =============================== */
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: linear-gradient(135deg, #2196F3, #21CBF3);
+  border-radius: 10px;
+  box-shadow: 7px 6px 12px rgba(0, 0, 0, 0.3);
+  margin-top: 30px;
+}
+.header h1 {
+  font-size: 2.5em;
+  margin: 0;
+  color: #000;
+  text-shadow: 7px 6px 12px rgba(0, 0, 0, 0.3);
+}
+.header h8 {
+  color: #000;
+}
+
+.note-types {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.note-type-btn {
+  padding: 10px 20px;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+  background: linear-gradient(135deg, #2196F3, #21CBF3);
+  color: #121212;
+  font-weight: bold;
+  transition: background 0.3s, transform 0.2s;
+}
+.note-type-btn:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #2196F3, #21CBF3);
+}
+.note-type-btn.active {
+  box-shadow: 0 0 10px rgba(33, 150, 243, 0.8);
+}
+
+/* ===============================
+   Note Sections (Unified Container)
+   =============================== */
+.note-section {
+  display: none;
+  background: var(--background-color);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+  margin-bottom: 20px;
+}
+.note-section.active {
+  display: block;
+}
+
+/* ===============================
+   Regular Notes – Notebook Feature
+   =============================== */
+/* Notebooks View */
+.notebook-creator {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 10px;
+}
+#notebookTitleInput {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #333;
+  border-radius: 4px;
+  background-color: #333;
+  color: var(--text-color);
+  font-size: 1em;
+}
+.notebook-creator button {
+  padding: 10px 15px;
+  background: linear-gradient(135deg, #2196F3, #21CBF3);
+  color: #121212;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background 0.3s, transform 0.2s;
+  display: block;
+  margin: 10px auto;
+}
+.notebook-creator button:hover {
+  background: linear-gradient(135deg, #2196F3, #21CBF3);
+  transform: translateY(-2px);
+}
+.notebooks-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+.notebook {
+  background-color: var(--background-color);
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.2s;
+}
+.notebook:hover {
+  transform: scale(1.02);
+}
+.notebook h3 {
+  margin: 0;
+  font-size: 1.2em;
+  color: var(--text-color);
+}
+.notebook .delete-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: #ff3b30;
+  border: none;
+  cursor: pointer;
+  color: #fff;
+  font-size: 0.9em;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s;
+}
+.notebook .delete-btn:hover {
+  background-color: #ff453a;
+}
+
+/* Notebook Notes View */
+#notebookNotesView {
+  display: none;
+  background: var(--background-color);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+  margin-top: 20px;
+}
+#notebookNotesView button.back-btn {
+  margin-bottom: 10px;
+  padding: 10px 15px;
+  background: linear-gradient(135deg, #2196F3, #21CBF3);
+  color: #121212;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background 0.3s, transform 0.2s;
+  display: block;
+  margin: 10px auto;
+}
+#notebookNotesView button.back-btn:hover {
+  background: linear-gradient(135deg, #2196F3, #21CBF3);
+  transform: translateY(-2px);
+}
+#notebookTitleHeader {
+  margin: 10px 0;
+  font-size: 1.5em;
+  color: var(--text-color);
+  text-align: center;
+}
+
+/* Edit Button for Notebook Notes */
+.edit-btn {
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  background: linear-gradient(135deg, #2196F3, #21CBF3);
+  color: #121212;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s, transform 0.2s;
+  margin-right: 45px;
+  margin-top: 10px;
+}
+.edit-btn:hover {
+  background: linear-gradient(135deg, #2196F3, #21CBF3);
+  transform: translateY(-2px);
+}
+.note-buttons {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 5px;
+}
+
+/* ===============================
+   Existing Checklist & Locked Notes Styles
+   =============================== */
+.note-creator {
+  background-color: var(--background-color);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  margin-bottom: 20px;
+  text-align: center;
+}
+.note-creator textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #333;
+  border-radius: 4px;
+  resize: vertical;
+  background-color: #333;
+  color: var(--text-color);
+  font-size: 1em;
+}
+.note-creator button {
+  padding: 10px 15px;
+  background: linear-gradient(135deg, #2196F3, #21CBF3);
+  color: #121212;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background 0.3s, transform 0.2s;
+  display: block;
+  margin: 10px auto;
+}
+.note-creator button:hover {
+  background: linear-gradient(135deg, #2196F3, #21CBF3);
+  transform: translateY(-2px);
+}
+.notes-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+.note {
+  background-color: var(--background-color);
+  padding: 10px 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  position: relative;
+  transition: background-color 0.3s, transform 0.2s;
+  height: auto;
+}
+.note:hover {
+  transform: scale(1.02);
+}
+.note.locked {
+  background-color: #2c2c2c;
+}
+.note-content {
+  margin: 0;
+  padding: 0;
+  line-height: 1.2;
+  white-space: pre-wrap;
+}
+.delete-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #fa0000;
+  border: none;
+  cursor: pointer;
+  color: #fff;
+  font-size: 1em;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  transition: background-color 0.3s, transform 0.2s;
+}
+.delete-btn:hover {
+  background-color: #2c57b5;
+  transform: scale(1.1);
+}
+.locked-placeholder {
+  padding: 20px;
+  text-align: center;
+  color: #aaa;
+  font-style: italic;
+  border: 1px dashed #555;
+  border-radius: 4px;
+}
+
+/* ============================
+   Enhanced Checklist Section CSS
+   ============================ */
+
+
+/* ============================
+   Modern Enhanced Checklist Section CSS
+   ============================ */
+
+/* Define Custom Properties for Consistency */
+:root {
+  --primary-color: #4a90e2;      /* Blue */
+  --secondary-color: #50e3c2;    /* Teal */
+  --accent-color: #4a90e2;       /* Changed from green to blue */
+  --background-color: #1f1f1f;   /* Dark background */
+  --card-bg: rgba(255,255,255,0.05);
+  --text-color: #e0e0e0;
+}
+
+/* (Optional) Wrap your entire checklist section in a container */
+.checklist-section-container {
+  padding: 20px;
+  background: var(--background-color);
+  border-radius: 16px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+}
+
+/* --- Checklist Groups View --- */
+#checklistGroupsView {
+  padding: 25px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 16px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+  margin-bottom: 30px;
+}
+
+.checklist-group-creator {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.checklist-group-creator input {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  background-color: rgba(255,255,255,0.1);
+  color: var(--text-color);
+  font-size: 1em;
+}
+
+.checklist-group-creator button {
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #2196F3, #21CBF3);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.checklist-group-creator button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  background: linear-gradient(135deg, #2196F3, #21CBF3);
+}
+
+#checklistGroupsList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.checklist-group {
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+  cursor: pointer;
+}
+
+.checklist-group:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.35);
+}
+
+.checklist-group h3 {
+  margin: 0;
+  font-size: 1.3em;
+  color: var(--text-color);
+  text-align: center;
+  cursor: pointer;
+}
+
+.checklist-group .delete-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(231,76,60,0.9);
+  border: none;
+  color: #fff;
+  font-size: 0.9em;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.checklist-group .delete-btn:hover {
+  transform: scale(1.1);
+}
+
+/* --- Checklist Group Notes View --- */
+#checklistGroupNotesView {
+  padding: 25px;
+  background: var(--card-bg);
+  border-radius: 16px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+  margin-top: 30px;
+}
+
+#checklistGroupTitleHeader {
+  text-align: center;
+  font-size: 1.8em;
+  margin-bottom: 20px;
+  color: var(--text-color);
+  font-weight: 600;
+}
+
+#checklistGroupNotesView .note-creator {
+  margin-bottom: 25px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+/* Change the text color for the 'Add Checklist' button to black */
+#checklistGroupNotesView .note-creator button {
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #2196F3, #21CBF3);
+  color: #000;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+#checklistGroupNotesView .note-creator button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  background: linear-gradient(135deg, #2196F3, #21CBF3);
+}
+
+#checklistGroupNotesView .note-creator textarea {
+  width: 100%;
+  max-width: 600px;
+  padding: 18px;
+  border: none;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.1);
+  color: var(--text-color);
+  font-size: 1em;
+  resize: vertical;
+}
+
+/* Reduced gap between checklist notes */
+#checklistGroupNotes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2px;
+}
+
+/* --- Enhanced Checklist Items --- */
+.checklist-item {
+  display: flex;
+  align-items: center;
+  background: rgba(255,255,255,0.05);
+  padding: 5px;
+  border-radius: 12px;
+  margin-bottom: 0px;
+  transition: background 0.3s;
+}
+
+.checklist-item:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.checklist-item input[type="checkbox"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border: 2px solid #fff;
+  border-radius: 6px;
+  margin-right: 12px;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.3s, border-color 0.3s;
+}
+
+.checklist-item input[type="checkbox"]:checked {
+  background: #2196F3;
+  border-color: #2196F3;
+}
+
+.checklist-item input[type="checkbox"]:checked::after {
+  content: "✔";
+  position: absolute;
+  top: -2px;
+  left: 4px;
+  color: #fff;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.checklist-item span {
+  flex: 1;
+  color: var(--text-color);
+  font-size: 1em;
+  width: 100%;
+}
+
+/* ===========================
+       Checklist Groups Section
+       =========================== */
+#checklistGroupsView {
+  display: block;
+}
+.checklist-group-creator {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 10px;
+  text-align: center;
+}
+#checklistGroupTitleInput {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #333;
+  border-radius: 4px;
+  background-color: #333;
+  color: #e0e0e0;
+  font-size: 1em;
+}
+.checklist-group-creator button {
+  padding: 10px 15px;
+  background: linear-gradient(135deg, #2196F3, #21CBF3);
+  color: #121212;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background 0.3s, transform 0.2s;
+  display: block;
+  margin: 10px auto;
+}
+.checklist-group-creator button:hover {
+  background: linear-gradient(135deg, #2196F3, #21CBF3);
+  transform: translateY(-2px);
+}
+#checklistGroupsList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+.checklist-group {
+  background-color: #1e1e1e;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.2s;
+}
+.checklist-group:hover {
+  transform: scale(1.02);
+}
+.checklist-group h3 {
+  margin: 0;
+  font-size: 1.2em;
+  color: #e0e0e0;
+}
+.checklist-group .delete-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: #ff3b30;
+  border: none;
+  cursor: pointer;
+  color: #fff;
+  font-size: 0.9em;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s;
+}
+.checklist-group .delete-btn:hover {
+  background-color: #ff453a;
+}
+/* Checklist Group Notes View */
+#checklistGroupNotesView {
+  display: none;
+}
+#checklistGroupNotesView button.back-btn {
+  margin-bottom: 10px;
+  padding: 10px 15px;
+  background: linear-gradient(135deg, #2196F3, #21CBF3);
+  color: #121212;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background 0.3s, transform 0.2s;
+  display: block;
+  margin: 10px auto;
+}
+#checklistGroupNotesView button.back-btn:hover {
+  background: linear-gradient(135deg, #2196F3, #21CBF3);
+  transform: translateY(-2px);
+}
+#checklistGroupTitleHeader {
+  margin: 10px 0;
+  font-size: 1.5em;
+  color: #e0e0e0;
+  text-align: center;
+}
+
+/* ===============================
+   Locked Notes Section
+   =============================== */
+#lockedSection .note-creator {
+  text-align: center;
+  margin-bottom: 20px;
+}
+#lockedSection .note-creator textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #333;
+  border-radius: 4px;
+  resize: vertical;
+  background-color: #333;
+  color: var(--text-color);
+  font-size: 1em;
+}
+#lockedSection .notes-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+.note.locked {
+  background-color: #2c2c2c;
+}
+.note-content {
+  line-height: 1.2;
+  white-space: pre-wrap;
+}
+
+/* Unlock Button */
+.unlock-btn {
+  display: block;
+  margin: 10px auto 0;
+  padding: 10px 15px;
+  background: linear-gradient(135deg, #2196F3, #21CBF3);
+  color: #121212;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background 0.3s, transform 0.2s;
+}
+.unlock-btn:hover {
+  background: linear-gradient(135deg, #2196F3, #21CBF3);
+  transform: translateY(-2px);
+}
+
+/* ===============================
+   Images Section
+   =============================== */
+#imagesSection .image-uploader {
+  text-align: center;
+  margin-bottom: 20px;
+}
+#imagesSection .image-uploader input[type="file"] {
+  display: inline-block;
+  margin-bottom: 10px;
+  padding: 8px 12px;
+  background-color: #333;
+  color: var(--text-color);
+  border: 1px solid #555;
+  border-radius: 4px;
+  cursor: pointer;
+}
+#imagesSection .image-uploader input[type="file"]::-webkit-file-upload-button {
+  background: linear-gradient(135deg, #2196F3, #21CBF3);
+  border: none;
+  color: #121212;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+#imagesSection .image-uploader input[type="file"]::-webkit-file-upload-button:hover {
+  background: linear-gradient(135deg, #2196F3, #21CBF3);
+}
+#imagesSection .images-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  padding: 10px;
+}
+.image-item {
+  background-color: var(--background-color);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+  position: relative;
+  transition: transform 0.3s, box-shadow 0.3s;
+  width: 50%; /* Adjust as needed */
+  height: auto;
+}
+.image-item:hover {
+  transform: scale(1.02);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.5);
+}
+.image-item img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.image-item .caption {
+  padding: 10px;
+  background: #121212;
+  text-align: center;
+  font-size: 0.9em;
+  color: #ccc;
+}
+.image-item .delete-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background-color: rgba(255, 59, 48, 0.8);
+  border: none;
+  color: #fff;
+  font-size: 0.9em;
+  width: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.3s, transform 0.3s;
+}
+.image-item:hover .delete-btn {
+  opacity: 1;
+}
+.image-item .delete-btn:hover {
+  transform: scale(1.1);
+}
+
+/* ===============================
+   #bt Button (Additional)
+   =============================== */
+#bt {
+  display: block;
+  margin: 10px auto 0;
+  padding: 10px 15px;
+  background: linear-gradient(135deg, #2196F3, #21CBF3);
+  color: #121212;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background 0.3s, transform 0.2s;
+}
+
+/* ===============================
+   Backup Controls – Top Corners
+   =============================== */
+#exportBtn,
+#importBtn {
+  padding: 16px 16px;
+  font-size: 0.9em;
+  border: none;
+  border-radius: 4px;
+  background: linear-gradient(135deg, #312c2c, #327cc5);
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+  position: fixed;
+  top: 10px;
+  z-index: 1001;
+}
+#exportBtn:hover,
+#importBtn:hover {
+  background: linear-gradient(135deg, #B71C1C, #1565C0);
+  transform: translateY(-2px);
+}
+#exportBtn { left: 10px; }
+#importBtn { right: 10px; }
+
+/* ===============================
+   Password Prompt Modal
+   =============================== */
+.password-prompt {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: var(--background-color);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.7);
+  z-index: 1000;
+  width: 90%;
+  max-width: 400px;
+}
+.password-prompt input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #333;
+  border-radius: 4px;
+  background-color: #333;
+  color: var(--text-color);
+  font-size: 1em;
+}
+.password-prompt button {
+  width: 100%;
+  padding: 10px;
+  background: linear-gradient(135deg, #2196F3, #21CBF3);
+  color: #121212;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background 0.3s, transform 0.2s;
+}
+.password-prompt button:hover {
+  background: linear-gradient(135deg, #2196F3, #21CBF3);
+  transform: translateY(-2px);
+}
+
+
+  </style>
+</head>
+<body>
+  <!-- Backup Controls -->
+  <button id="exportBtn" onclick="exportData()">Backup</button>
+  <input type="file" id="backupFileInput" style="display: none;" accept=".json" onchange="importData(this.files[0])" />
+  <button id="importBtn" onclick="document.getElementById('backupFileInput').click()">Import Backup</button>
+  
+  <div class="container">
+    <div class="header">
+      <h1>eNotes</h1>
+      <h8>-by Aditya</h8>
+    </div>
+    <div class="note-types">
+      <button class="note-type-btn active" onclick="showSection('regular')">Regular Notes</button>
+      <button class="note-type-btn" onclick="showSection('checklist')">Checklists</button>
+      <button class="note-type-btn" onclick="showSection('locked')">Locked Notes</button>
+      <button class="note-type-btn" onclick="showSection('images')">Images</button>
+    </div>
+    
+    <!-- Regular Notes Section with Notebook Feature -->
+    <div class="note-section active" id="regularSection">
+      <!-- Notebooks View -->
+      <div id="notebooksView">
+        <div class="notebook-creator">
+          <input type="text" id="notebookTitleInput" placeholder="Enter Notebook Title..." />
+          <button onclick="createNotebook()">Create Notebook</button>
+        </div>
+        <div class="notebooks-container" id="notebooksList"></div>
+      </div>
+      <!-- Notebook Notes View -->
+      <div id="notebookNotesView" style="display: none;">
+        <button class="back-btn" onclick="backToNotebooks()">Back to Notebooks</button>
+        <h2 id="notebookTitleHeader"></h2>
+        <div class="note-creator">
+          <textarea id="notebookNoteContent" placeholder="Write your note here..."></textarea>
+          <button onclick="createNoteInNotebook()">Add Note</button>
+        </div>
+        <div class="notes-container" id="notebookNotes"></div>
+      </div>
+    </div>
+    
+    <!-- Checklist Section with Group Feature -->
+    <div class="note-section" id="checklistSection">
+      <!-- Checklist Groups View -->
+      <div id="checklistGroupsView">
+        <div class="checklist-group-creator">
+          <input type="text" id="checklistGroupTitleInput" placeholder="Enter Checklist Group Title..." />
+          <button onclick="createChecklistGroup()">Create Checklist Group</button>
+        </div>
+        <div id="checklistGroupsList" class="notebooks-container"></div>
+      </div>
+      <!-- Checklist Group Notes View -->
+      <div id="checklistGroupNotesView" style="display: none;">
+        <button class="back-btn" onclick="backToChecklistGroups()">Back to Checklist Groups</button>
+        <h2 id="checklistGroupTitleHeader"></h2>
+        <div class="note-creator">
+          <textarea id="checklistNoteContent" placeholder="Add checklist items (one per line)"></textarea>
+          <button onclick="createChecklistNoteInGroup()">Add Checklist</button>
+        </div>
+        <div id="checklistGroupNotes" class="notes-container"></div>
+      </div>
+    </div>
+    
+    <!-- Locked Notes Section -->
+    <div class="note-section" id="lockedSection">
+      <div class="note-creator">
+        <textarea id="lockedContent" placeholder="Write your locked note here..."></textarea>
+        <button onclick="createNote('locked')">Lock Note</button>
+        <button class="unlock-btn" onclick="showPasswordPrompt()">Unlock Locked Section</button>
+      </div>
+      <div class="notes-container" id="lockedNotes"></div>
+    </div>
+    
+    <!-- Images Section -->
+    <div class="note-section" id="imagesSection">
+      <div class="image-uploader">
+        <input type="file" id="imageInput" accept="image/*" multiple />
+        <button onclick="uploadImage()" id="bt">Upload Images</button>
+      </div>
+      <div class="images-container" id="imagesContainer"></div>
+    </div>
+  </div>
+  
+  <!-- Password Prompt Modal -->
+  <div class="password-prompt" id="passwordPrompt">
+    <input type="password" id="passwordInput" placeholder="Enter password" />
+    <button onclick="unlockSection()">Unlock</button>
+  </div>
+  
+  <!-- Include External JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+  <script>
+    /* ============ Global Variables ============ */
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+let currentSection = 'regular';
+let lockedSectionPassword = localStorage.getItem('lockedSectionPassword') || null;
+let lockedSectionUnlocked = false;
+let currentNotebookId = null;
+let editingNoteId = null;
+let currentChecklistGroupId = null;
+let db; // Declare db variable globally
+
+/* ============ Section Switching ============ */
+function showSection(section) {
+  // Save current section to localStorage
+  localStorage.setItem('lastOpenedSection', section);
+  
+  document.querySelectorAll('.note-section').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.note-type-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById(section + 'Section').classList.add('active');
+  document.querySelector(`button[onclick="showSection('${section}')"]`).classList.add('active');
+  currentSection = section;
+}
+
+/* ============ Regular, Checklist & Locked Notes ============ */
+function createNote(type) {
+  const contentField = document.getElementById(`${type}Content`);
+  if (!contentField) return;
+  const rawContent = contentField.value.trim();
+  if (!rawContent) {
+    alert('Please enter some content!');
+    return;
+  }
+  const note = {
+    id: Date.now(),
+    type,
+    timestamp: new Date().toLocaleDateString('en-GB')
+  };
+  if (type === 'checklist') {
+    const lines = rawContent.split('\n').map(line => line.trim()).filter(line => line !== '');
+    note.content = lines;
+    note.checkedItems = Array(lines.length).fill(false);
+  } else {
+    note.content = rawContent;
+    note.checkedItems = [];
+  }
+  if (type === 'locked') {
+    if (!lockedSectionPassword) {
+      lockedSectionPassword = prompt('Set a password for the locked section:');
+      if (lockedSectionPassword) {
+        localStorage.setItem('lockedSectionPassword', lockedSectionPassword);
+      } else {
+        alert("Password is required to create locked notes!");
+        return;
+      }
+    }
+  }
+  saveNote(note);
+  renderNotes();
+  clearInputs(type);
+}
+
+function saveNote(note) {
+  const notes = JSON.parse(localStorage.getItem('notes') || '[]');
+  notes.push(note);
+  localStorage.setItem('notes', JSON.stringify(notes));
+}
+
+function renderNotes() {
+  const notes = JSON.parse(localStorage.getItem('notes') || '[]');
+  // Update only checklist and locked notes (regular notes are in notebooks)
+  ['checklist', 'locked'].forEach(type => {
+    const container = document.getElementById(`${type}Notes`);
+    if (container) {
+      container.innerHTML = notes
+        .filter(note => note.type === type)
+        .map(note => createNoteElement(note))
+        .join('');
+    }
+  });
+}
+
+function createNoteElement(note) {
+  let content = '';
+  if (note.type === 'checklist') {
+    const items = Array.isArray(note.content) ? note.content : note.content.split('\n');
+    const checkedItems = Array.isArray(note.checkedItems) ? note.checkedItems : Array(items.length).fill(false);
+    content = items.map((item, index) => `
+      <label class="checklist-item">
+        <input type="checkbox" onchange="toggleCheckbox(${note.id}, ${index}, this.checked)" ${checkedItems[index] ? 'checked' : ''}>
+        <span>${item}</span>
+      </label>
+    `).join('');
+  } else if (note.type === 'locked') {
+    if (lockedSectionUnlocked) {
+      content = note.content;
+    } else {
+      content = '<div class="locked-placeholder">This note is locked. Unlock to view.</div>';
+    }
+  } else {
+    content = note.content.replace(/\n/g, '<br>');
+  }
+  return `
+    <div class="note ${note.type === 'locked' ? 'locked' : ''}" id="note-${note.id}">
+      <button class="delete-btn" onclick="deleteNote(${note.id})">✕</button>
+      <div class="note-content">${content}</div>
+      <small>${note.timestamp}</small>
+    </div>
+  `;
+}
+
+function toggleCheckbox(noteId, itemIndex, newState) {
+  const notes = JSON.parse(localStorage.getItem('notes') || '[]');
+  const note = notes.find(n => n.id === noteId);
+  if (note && note.type === 'checklist') {
+    if (!Array.isArray(note.checkedItems)) {
+      const items = Array.isArray(note.content) ? note.content : note.content.split('\n');
+      note.checkedItems = Array(items.length).fill(false);
+    }
+    note.checkedItems[itemIndex] = newState;
+    localStorage.setItem('notes', JSON.stringify(notes));
+    renderNotes();
+  }
+}
+
+function showPasswordPrompt() {
+  document.getElementById('passwordPrompt').style.display = 'block';
+}
+
+function unlockSection() {
+  const password = document.getElementById('passwordInput').value;
+  if (password === lockedSectionPassword) {
+    lockedSectionUnlocked = true;
+    document.getElementById('passwordPrompt').style.display = 'none';
+    renderNotes();
+  } else {
+    alert('Wrong password!');
+  }
+}
+
+function deleteNote(id) {
+  const notes = JSON.parse(localStorage.getItem('notes') || '[]');
+  const note = notes.find(note => note.id === id);
+  if (note && note.type === 'locked' && !lockedSectionUnlocked) {
+    alert("Please unlock the locked notes section before deleting a locked note.");
+    return;
+  }
+  if (confirm("Are you sure you want to delete this note?")) {
+    const filteredNotes = notes.filter(note => note.id !== id);
+    localStorage.setItem('notes', JSON.stringify(filteredNotes));
+    renderNotes();
+  }
+}
+
+function clearInputs(type) {
+  const element = document.getElementById(`${type}Content`);
+  if (element) element.value = '';
+}
+
+/* ============ Notebook Feature ============ */
+function loadNotebooks() {
+  const notebooks = JSON.parse(localStorage.getItem('notebooks') || '[]');
+  renderNotebooks(notebooks);
+}
+
+function renderNotebooks(notebooks) {
+  const notebooksList = document.getElementById('notebooksList');
+  if (notebooks.length === 0) {
+    notebooksList.innerHTML = '<p>No notebooks found. Please create one.</p>';
+  } else {
+    notebooksList.innerHTML = notebooks.map(nb => `
+      <div class="notebook">
+        <h3 onclick="openNotebook(${nb.id})">${nb.title}</h3>
+        <button class="delete-btn" onclick="deleteNotebook(event, ${nb.id})">✕</button>
+      </div>
+    `).join('');
+  }
+}
+
+function createNotebook() {
+  const titleInput = document.getElementById('notebookTitleInput');
+  const title = titleInput.value.trim();
+  if (!title) {
+    alert('Please enter a notebook title.');
+    return;
+  }
+  const notebooks = JSON.parse(localStorage.getItem('notebooks') || '[]');
+  const newNotebook = {
+    id: Date.now(),
+    title: title,
+    notes: []
+  };
+  notebooks.push(newNotebook);
+  localStorage.setItem('notebooks', JSON.stringify(notebooks));
+  titleInput.value = '';
+  loadNotebooks();
+}
+
+function openNotebook(notebookId) {
+  // Save current notebook ID to localStorage
+  localStorage.setItem('lastOpenedNotebook', notebookId);
+  
+  currentNotebookId = notebookId;
+  document.getElementById('notebooksView').style.display = 'none';
+  document.getElementById('notebookNotesView').style.display = 'block';
+  const notebooks = JSON.parse(localStorage.getItem('notebooks') || '[]');
+  const notebook = notebooks.find(nb => nb.id === notebookId);
+  if (notebook) {
+    document.getElementById('notebookTitleHeader').innerText = notebook.title;
+    renderNotebookNotes(notebook.notes);
+  }
+}
+
+function backToNotebooks() {
+  // Clear last opened notebook from localStorage
+  localStorage.removeItem('lastOpenedNotebook');
+  
+  currentNotebookId = null;
+  editingNoteId = null;
+  document.getElementById('notebooksView').style.display = 'block';
+  document.getElementById('notebookNotesView').style.display = 'none';
+  loadNotebooks();
+}
+
+function createNoteInNotebook() {
+  const contentField = document.getElementById('notebookNoteContent');
+  const rawContent = contentField.value.trim();
+  if (!rawContent) {
+    alert('Please enter some content for the note.');
+    return;
+  }
+  const notebooks = JSON.parse(localStorage.getItem('notebooks') || '[]');
+  const notebook = notebooks.find(nb => nb.id === currentNotebookId);
+  if (notebook) {
+    const note = {
+      id: Date.now(),
+      content: rawContent,
+      timestamp: new Date().toLocaleDateString('en-GB')
+    };
+    notebook.notes.push(note);
+    localStorage.setItem('notebooks', JSON.stringify(notebooks));
+    contentField.value = '';
+    renderNotebookNotes(notebook.notes);
+  }
+}
+
+function renderNotebookNotes(notes) {
+  const container = document.getElementById('notebookNotes');
+  if (notes.length === 0) {
+    container.innerHTML = '<p>No notes in this notebook. Add one!</p>';
+  } else {
+    container.innerHTML = notes.map(note => {
+      if (note.id === editingNoteId) {
+        return `
+          <div class="note" id="note-${note.id}">
+            <textarea id="editTextarea-${note.id}" style="width:100%; padding:10px;">${note.content}</textarea>
+            <button onclick="saveEditedNotebookNote(${note.id})" class="edit-btn" title="Save">&#10004;</button>
+          </div>
+        `;
+      } else {
+        return `
+          <div class="note" id="note-${note.id}">
+            <div class="note-buttons" style="position:absolute; top:10px; right:10px; display:flex; gap:5px;">
+              <button class="delete-btn" onclick="deleteNotebookNote(${note.id})">✕</button>
+              <button class="edit-btn" onclick="editNotebookNote(${note.id})" title="Edit">&#9998;</button>
+            </div>
+            <div class="note-content">${note.content}</div>
+            <small>${note.timestamp}</small>
+          </div>
+        `;
+      }
+    }).join('');
+  }
+}
+
+function editNotebookNote(noteId) {
+  const notebooks = JSON.parse(localStorage.getItem('notebooks') || '[]');
+  const notebook = notebooks.find(nb => nb.id === currentNotebookId);
+  if (notebook) {
+    const note = notebook.notes.find(n => n.id === noteId);
+    if (note) {
+      editingNoteId = noteId;
+      renderNotebookNotes(notebook.notes);
+    }
+  }
+}
+
+function saveEditedNotebookNote(noteId) {
+  const textArea = document.getElementById(`editTextarea-${noteId}`);
+  if (!textArea) return;
+  const newContent = textArea.value.trim();
+  if (newContent === "") {
+    alert("Note cannot be empty.");
+    return;
+  }
+  const notebooks = JSON.parse(localStorage.getItem('notebooks') || '[]');
+  const notebook = notebooks.find(nb => nb.id === currentNotebookId);
+  if (notebook) {
+    const note = notebook.notes.find(n => n.id === noteId);
+    if (note) {
+      note.content = newContent;
+      localStorage.setItem('notebooks', JSON.stringify(notebooks));
+      editingNoteId = null;
+      renderNotebookNotes(notebook.notes);
+    }
+  }
+}
+
+function deleteNotebookNote(noteId) {
+  if (!confirm("Are you sure you want to delete this note?")) return;
+  const notebooks = JSON.parse(localStorage.getItem('notebooks') || '[]');
+  const notebook = notebooks.find(nb => nb.id === currentNotebookId);
+  if (notebook) {
+    notebook.notes = notebook.notes.filter(note => note.id !== noteId);
+    localStorage.setItem('notebooks', JSON.stringify(notebooks));
+    renderNotebookNotes(notebook.notes);
+  }
+}
+
+function deleteNotebook(e, notebookId) {
+  e.stopPropagation();
+  if (confirm("Are you sure you want to delete this notebook?")) {
+    let notebooks = JSON.parse(localStorage.getItem('notebooks') || '[]');
+    notebooks = notebooks.filter(nb => nb.id !== notebookId);
+    localStorage.setItem('notebooks', JSON.stringify(notebooks));
+    loadNotebooks();
+  }
+}
+
+/* ============ Checklist Group Feature ============ */
+function loadChecklistGroups() {
+  const groups = JSON.parse(localStorage.getItem('checklistGroups') || '[]');
+  renderChecklistGroups(groups);
+}
+
+function renderChecklistGroups(groups) {
+  const groupsList = document.getElementById('checklistGroupsList');
+  if (groups.length === 0) {
+    groupsList.innerHTML = '<p>No checklist groups found. Please create one.</p>';
+  } else {
+    groupsList.innerHTML = groups.map(group => `
+      <div class="checklist-group">
+        <h3 onclick="openChecklistGroup(${group.id})">${group.title}</h3>
+        <button class="delete-btn" onclick="deleteChecklistGroup(event, ${group.id})">✕</button>
+      </div>
+    `).join('');
+  }
+}
+
+function createChecklistGroup() {
+  const input = document.getElementById('checklistGroupTitleInput');
+  const title = input.value.trim();
+  if (!title) {
+    alert('Please enter a checklist group title.');
+    return;
+  }
+  const groups = JSON.parse(localStorage.getItem('checklistGroups') || '[]');
+  const newGroup = {
+    id: Date.now(),
+    title: title,
+    notes: []
+  };
+  groups.push(newGroup);
+  localStorage.setItem('checklistGroups', JSON.stringify(groups));
+  input.value = '';
+  loadChecklistGroups();
+}
+
+function openChecklistGroup(groupId) {
+  currentChecklistGroupId = groupId;
+  document.getElementById('checklistGroupsView').style.display = 'none';
+  document.getElementById('checklistGroupNotesView').style.display = 'block';
+  const groups = JSON.parse(localStorage.getItem('checklistGroups') || '[]');
+  const group = groups.find(g => g.id === groupId);
+  if (group) {
+    document.getElementById('checklistGroupTitleHeader').innerText = group.title;
+    renderChecklistGroupNotes(group.notes);
+  }
+}
+
+function backToChecklistGroups() {
+  currentChecklistGroupId = null;
+  document.getElementById('checklistGroupsView').style.display = 'block';
+  document.getElementById('checklistGroupNotesView').style.display = 'none';
+  loadChecklistGroups();
+}
+
+function createChecklistNoteInGroup() {
+  const contentField = document.getElementById('checklistNoteContent');
+  const rawContent = contentField.value.trim();
+  if (!rawContent) {
+    alert('Please enter some content for the checklist note.');
+    return;
+  }
+  const lines = rawContent.split('\n').map(line => line.trim()).filter(line => line !== '');
+  const note = {
+    id: Date.now(),
+    content: lines,
+    checkedItems: Array(lines.length).fill(false),
+    timestamp: new Date().toLocaleDateString('en-GB')
+  };
+  const groups = JSON.parse(localStorage.getItem('checklistGroups') || '[]');
+  const group = groups.find(g => g.id === currentChecklistGroupId);
+  if (group) {
+    group.notes.push(note);
+    localStorage.setItem('checklistGroups', JSON.stringify(groups));
+    contentField.value = '';
+    renderChecklistGroupNotes(group.notes);
+  }
+}
+
+function renderChecklistGroupNotes(notes) {
+  const container = document.getElementById('checklistGroupNotes');
+  if (notes.length === 0) {
+    container.innerHTML = '<p>No checklist notes in this group. Add one!</p>';
+  } else {
+    container.innerHTML = notes.map(note => `
+      <div class="note" id="note-${note.id}">
+        <button class="delete-btn" onclick="deleteChecklistGroupNote(${note.id})">✕</button>
+        <div class="note-content">
+          ${note.content.map((item, idx) => `
+            <label class="checklist-item">
+              <input type="checkbox" onchange="toggleChecklistItem(${note.id}, ${idx}, this.checked)" ${note.checkedItems[idx] ? 'checked' : ''}>
+              <span>${item}</span>
+            </label>
+          `).join('')}
+        </div>
+        <small>${note.timestamp}</small>
+      </div>
+    `).join('');
+  }
+}
+
+function toggleChecklistItem(noteId, itemIndex, newState) {
+  const groups = JSON.parse(localStorage.getItem('checklistGroups') || '[]');
+  const group = groups.find(g => g.id === currentChecklistGroupId);
+  if (group) {
+    const note = group.notes.find(n => n.id === noteId);
+    if (note) {
+      if (!Array.isArray(note.checkedItems)) {
+        note.checkedItems = Array(note.content.length).fill(false);
+      }
+      note.checkedItems[itemIndex] = newState;
+      localStorage.setItem('checklistGroups', JSON.stringify(groups));
+      renderChecklistGroupNotes(group.notes);
+    }
+  }
+}
+
+function deleteChecklistGroupNote(noteId) {
+  if (!confirm("Are you sure you want to delete this checklist note?")) return;
+  const groups = JSON.parse(localStorage.getItem('checklistGroups') || '[]');
+  const group = groups.find(g => g.id === currentChecklistGroupId);
+  if (group) {
+    group.notes = group.notes.filter(note => note.id !== noteId);
+    localStorage.setItem('checklistGroups', JSON.stringify(groups));
+    renderChecklistGroupNotes(group.notes);
+  }
+}
+
+function deleteChecklistGroup(e, groupId) {
+  e.stopPropagation();
+  if (confirm("Are you sure you want to delete this checklist group?")) {
+    let groups = JSON.parse(localStorage.getItem('checklistGroups') || '[]');
+    groups = groups.filter(g => g.id !== groupId);
+    localStorage.setItem('checklistGroups', JSON.stringify(groups));
+    loadChecklistGroups();
+  }
+}
+
+/* ============ Image Upload & Compression Feature ============ */
+// Open (or create) the database
+const request = indexedDB.open("ImageDB", 1);
+
+request.onupgradeneeded = function(event) {
+  const db = event.target.result;
+  db.createObjectStore("images", { keyPath: "id" });
+};
+
+request.onsuccess = function(event) {
+  db = event.target.result; // Assign db to the global variable
+  console.log("Database opened successfully");
+  loadImages(); // Load images after DB is ready
+};
+
+request.onerror = function(event) {
+  console.error("Database error:", event.target.error);
+};
+
+function saveImageToIndexedDB(image) {
+  const transaction = db.transaction(["images"], "readwrite");
+  const store = transaction.objectStore("images");
+  const request = store.add(image);
+
+  request.onsuccess = function() {
+    console.log("Image saved successfully!");
+    loadImages(); // Load images after saving
+  };
+
+  request.onerror = function() {
+    console.error("Error saving image:", request.error);
+  };
+}
+
+function uploadImage() {
+  const imageInput = document.getElementById('imageInput');
+  if (imageInput.files.length === 0) {
+    alert("Please select at least one image file.");
+    return;
+  }
+
+  // Loop through all selected files
+  Array.from(imageInput.files).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const image = {
+        id: Date.now() + Math.random(), // Ensure unique ID for each image
+        data: e.target.result, // Use original image data
+        timestamp: new Date().toLocaleDateString('en-GB')
+      };
+      saveImageToIndexedDB(image);
+    };
+    reader.onerror = function() {
+      console.error("Error reading file:", reader.error);
+    };
+    reader.readAsDataURL(file);
+  });
+
+  imageInput.value = ""; // Clear the input after upload
+}
+
+function loadImages() {
+  const transaction = db.transaction(["images"], "readonly");
+  const store = transaction.objectStore("images");
+  const request = store.getAll(); // Get all images
+
+  request.onsuccess = function(event) {
+    const images = event.target.result;
+    renderImages(images); // Pass images to renderImages
+  };
+
+  request.onerror = function() {
+    console.error("Error loading images:", request.error);
+  };
+}
+
+function renderImages(images) {
+  const container = document.getElementById('imagesContainer');
+  if (!container) return;
+  if (images.length === 0) {
+    container.innerHTML = '<p>No images uploaded yet.</p>';
+  } else {
+    container.innerHTML = images.map(image => `
+      <div class="image-item" id="image-${image.id}">
+        <img src="${image.data}" alt="Uploaded Image" />
+        <small>${image.timestamp}</small>
+        <button class="delete-btn" onclick="deleteImage(${image.id})">✕</button>
+      </div>
+    `).join('');
+  }
+}
+
+function deleteImage(id) {
+  const transaction = db.transaction(["images"], "readwrite");
+  const store = transaction.objectStore("images");
+  const request = store.delete(id);
+
+  request.onsuccess = function() {
+    console.log("Image deleted successfully!");
+    loadImages(); // Reload images after deletion
+  };
+
+  request.onerror = function() {
+    console.error("Error deleting image:", request.error);
+  };
+}
+
+/* ============ Backup Feature ============ */
+async function exportData() {
+  const images = await loadAllImages(); // Load images before exporting
+  const data = {
+    notes: localStorage.getItem('notes') || null,
+    notebooks: localStorage.getItem('notebooks') || null,
+    checklistGroups: localStorage.getItem('checklistGroups') || null,
+    images: JSON.stringify(images), // Save images as JSON
+    lockedSectionPassword: localStorage.getItem('lockedSectionPassword') || null
+  };
+  const dataStr = JSON.stringify(data, null, 2);
+  const blob = new Blob([dataStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'smart-note-taker-backup.json';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+async function loadAllImages() {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(["images"], "readonly");
+    const store = transaction.objectStore("images");
+    const request = store.getAll(); // Get all images
+
+    request.onsuccess = function(event) {
+      resolve(event.target.result); // Return images
+    };
+
+    request.onerror = function() {
+      reject("Error loading images:", request.error);
+    };
+  });
+}
+
+function importData(file) {
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      
+      // Validate the structure of the data
+      if (typeof data.notes === 'string') {
+        localStorage.setItem('notes', data.notes);
+      } else {
+        throw new Error("Invalid notes format");
+      }
+
+      if (typeof data.notebooks === 'string') {
+        localStorage.setItem('notebooks', data.notebooks);
+      } else {
+        throw new Error("Invalid notebooks format");
+      }
+
+      if (typeof data.checklistGroups === 'string') {
+        localStorage.setItem('checklistGroups', data.checklistGroups);
+      } else {
+        throw new Error("Invalid checklist groups format");
+      }
+
+      if (data.images !== undefined) {
+        const images = JSON.parse(data.images);
+        if (Array.isArray(images)) {
+          images.forEach(image => saveImageToIndexedDB(image)); // Save each image to IndexedDB
+        } else {
+          throw new Error("Invalid images format");
+        }
+      }
+
+      if (data.lockedSectionPassword !== undefined) {
+        localStorage.setItem('lockedSectionPassword', data.lockedSectionPassword);
+      }
+
+      alert("Data imported successfully! Reloading the page...");
+      location.reload();
+    } catch (err) {
+      alert("Failed to import data: " + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+/* ============ Initial Loads ============ */
+function initializeApp() {
+  request.onsuccess = function(event) {
+    db = event.target.result; // Assign db to the global variable
+    loadNotebooks();
+    renderNotes();
+    loadChecklistGroups();
+    renderImages();
+
+    // Restore last opened section
+    const lastSection = localStorage.getItem('lastOpenedSection') || 'regular';
+    showSection(lastSection);
+
+    // Restore last opened notebook if any
+    const lastNotebook = localStorage.getItem('lastOpenedNotebook');
+    if (lastSection === 'regular' && lastNotebook) {
+      openNotebook(parseInt(lastNotebook));
+    }
+  };
+}
+
+// Replace the existing initial loads with initializeApp()
+window.onload = initializeApp;
+
+  </script>
+</body>
+</html>
