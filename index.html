@@ -1668,7 +1668,7 @@ function initializeApp() {
     loadNotebooks();
     renderNotes();
     loadChecklistGroups();
-    renderImages();
+    loadImages(); // Load images when the app initializes
 
     // Restore last opened section
     const lastSection = localStorage.getItem('lastOpenedSection') || 'regular';
